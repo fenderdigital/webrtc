@@ -1,0 +1,85 @@
+diff --git a/common_video/h264/pps_parser.h b/common_video/h264/pps_parser.h
+index d6c31b0688..d8852dfd18 100644
+--- a/common_video/h264/pps_parser.h
++++ b/common_video/h264/pps_parser.h
+@@ -12,6 +12,7 @@
+ #define COMMON_VIDEO_H264_PPS_PARSER_H_
+ 
+ #include "absl/types/optional.h"
++#include <cstdint>
+ 
+ namespace rtc {
+ class BitBuffer;
+diff --git a/common_video/h264/sps_parser.h b/common_video/h264/sps_parser.h
+index 76e627d27a..942435f44a 100644
+--- a/common_video/h264/sps_parser.h
++++ b/common_video/h264/sps_parser.h
+@@ -12,6 +12,7 @@
+ #define COMMON_VIDEO_H264_SPS_PARSER_H_
+ 
+ #include "absl/types/optional.h"
++#include <cstdint>
+ 
+ namespace rtc {
+ class BitBuffer;
+diff --git a/modules/congestion_controller/goog_cc/loss_based_bwe_v2.cc b/modules/congestion_controller/goog_cc/loss_based_bwe_v2.cc
+index 63202d879a..8343e97943 100644
+--- a/modules/congestion_controller/goog_cc/loss_based_bwe_v2.cc
++++ b/modules/congestion_controller/goog_cc/loss_based_bwe_v2.cc
+@@ -285,7 +285,7 @@ absl::optional<LossBasedBweV2::Config> LossBasedBweV2::CreateConfig(
+   if (!enabled.Get()) {
+     return config;
+   }
+-  config.emplace();
++  config.emplace(Config());
+   config->bandwidth_rampup_upper_bound_factor =
+       bandwidth_rampup_upper_bound_factor.Get();
+   config->candidate_factors = candidate_factors.Get();
+diff --git a/modules/include/module_common_types_public.h b/modules/include/module_common_types_public.h
+index 345e45ce12..e686e5d691 100644
+--- a/modules/include/module_common_types_public.h
++++ b/modules/include/module_common_types_public.h
+@@ -12,6 +12,7 @@
+ #define MODULES_INCLUDE_MODULE_COMMON_TYPES_PUBLIC_H_
+ 
+ #include <limits>
++#include <cstdint>
+ 
+ #include "absl/types/optional.h"
+ 
+diff --git a/modules/audio_processing/agc2/rnn_vad/features_extraction.cc b/modules/audio_processing/agc2/rnn_vad/features_extraction.cc
+index 5c276c87a9..18a54868d8 100644
+--- a/modules/audio_processing/agc2/rnn_vad/features_extraction.cc
++++ b/modules/audio_processing/agc2/rnn_vad/features_extraction.cc
+@@ -76,12 +76,12 @@ bool FeaturesExtractor::CheckSilenceComputeFeatures(
+   // Analyze reference and lagged frames checking if silence has been detected
+   // and write the feature vector.
+   return spectral_features_extractor_.CheckSilenceComputeFeatures(
+-      reference_frame_view_, {lagged_frame.data(), kFrameSize20ms24kHz},
+-      {feature_vector.data() + kNumLowerBands, kNumBands - kNumLowerBands},
+-      {feature_vector.data(), kNumLowerBands},
+-      {feature_vector.data() + kNumBands, kNumLowerBands},
+-      {feature_vector.data() + kNumBands + kNumLowerBands, kNumLowerBands},
+-      {feature_vector.data() + kNumBands + 2 * kNumLowerBands, kNumLowerBands},
++      reference_frame_view_, {lagged_frame.data(), static_cast<size_t>(kFrameSize20ms24kHz)},
++      {feature_vector.data() + kNumLowerBands, static_cast<size_t>(kNumBands - kNumLowerBands)},
++      {feature_vector.data(), static_cast<size_t>(kNumLowerBands)},
++      {feature_vector.data() + kNumBands, static_cast<size_t>(kNumLowerBands)},
++      {feature_vector.data() + kNumBands + kNumLowerBands, static_cast<size_t>(kNumLowerBands)},
++      {feature_vector.data() + kNumBands + 2 * kNumLowerBands, static_cast<size_t>(kNumLowerBands)},
+       &feature_vector[kFeatureVectorSize - 1]);
+ }
+ 
+diff --git a/net/dcsctp/socket/dcsctp_socket.cc b/net/dcsctp/socket/dcsctp_socket.cc
+index 2983b0f5c7..c58a2ee21f 100644
+--- a/net/dcsctp/socket/dcsctp_socket.cc
++++ b/net/dcsctp/socket/dcsctp_socket.cc
+@@ -117,7 +117,7 @@ Capabilities GetCapabilities(const DcSctpOptions& options,
+ 
+ void AddCapabilityParameters(const DcSctpOptions& options,
+                              Parameters::Builder& builder) {
+-  std::vector<uint8_t> chunk_types = {ReConfigChunk::kType};
++  std::vector<uint8_t> chunk_types = {static_cast<uint8_t>(ReConfigChunk::kType)};
+ 
+   if (options.enable_partial_reliability) {
+     builder.Add(ForwardTsnSupportedParameter());
